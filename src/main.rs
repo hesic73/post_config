@@ -43,7 +43,7 @@ fn main() {
                 .expect("Provided date is not in the valid format (yyyy-mm-dd)")
                 .format("%Y-%m-%d")
                 .to_string()
-        },
+        }
         None => {
             // Fetch the current date in yyyy-mm-dd format
             Local::now().format("%Y-%m-%d").to_string()
@@ -61,13 +61,19 @@ fn main() {
 
     let filename = format!("{}-{}.md", date, article.title.replace(" ", "-"));
     let file_path = args.output_dir.join(filename);
+    if file_path.exists() {
+        println!(
+            "Warning: The file at '{}' already exists!",
+            file_path.display()
+        );
+        return;
+    }
 
     let mut file = File::create(&file_path).expect("Unable to create file");
-    file.write_all(b"-----\n").expect("Unable to write to file");
+    file.write_all(b"---\n").expect("Unable to write to file");
     file.write_all(yaml.as_bytes())
         .expect("Unable to write to file");
-    file.write_all(b"\n-----\n")
-        .expect("Unable to write to file");
+    file.write_all(b"\n---\n").expect("Unable to write to file");
 
     println!("Article saved to {}", file_path.display());
 }
