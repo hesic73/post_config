@@ -1,7 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 #![feature(absolute_path)]
 use chrono::{Local, NaiveDate};
-use eframe::egui;
+use eframe::egui::{self, Slider};
 use egui::widgets::Widget;
 use egui_extras::DatePickerButton;
 use log::{info, warn};
@@ -114,7 +114,7 @@ fn setup_custom_fonts(ctx: &egui::Context) {
     // .ttf and .otf files supported.
     fonts.font_data.insert(
         "my_font".to_owned(),
-        egui::FontData::from_static(include_bytes!("../fonts/NotoSerifSC-Regular.otf")),
+        egui::FontData::from_static(include_bytes!("../assets/fonts/NotoSerifSC-Regular.otf")),
     );
 
     // Put my font first (highest priority) for proportional text:
@@ -139,6 +139,10 @@ struct MyApp {
     article: Article,
     output_directory: PathBuf,
     date: NaiveDate,
+    category_buffer: String,
+    category_index: i32,
+    tag_buffer: String,
+    tag_index: i32,
 }
 
 impl MyApp {
@@ -149,6 +153,10 @@ impl MyApp {
             article: article,
             output_directory: output_dir,
             date: date,
+            category_buffer: String::default(),
+            category_index: 0,
+            tag_buffer: String::default(),
+            tag_index: 0,
         }
     }
 }
@@ -178,6 +186,80 @@ impl eframe::App for MyApp {
             ui.horizontal(|ui: &mut egui::Ui| {
                 ui.label("Date: ");
                 DatePickerButton::new(&mut self.date).ui(ui);
+            });
+
+            ui.separator();
+            ui.horizontal(|ui: &mut egui::Ui| {
+                ui.label("Categories: ");
+                for category in self.article.categories.iter() {
+                    ui.label(category);
+                }
+            });
+            ui.horizontal(|ui: &mut egui::Ui| {
+                let label = ui.label("New category: ");
+                ui.text_edit_singleline(&mut self.category_buffer)
+                    .labelled_by(label.id);
+                if ui.button("Add").clicked() {
+                    if !self.category_buffer.is_empty() {
+                        for category in self.article.categories.iter() {
+                            if *category == self.category_buffer {
+                                return;
+                            }
+                        }
+                        self.article.categories.push(self.category_buffer.clone());
+                    }
+                };
+            });
+
+            ui.horizontal(|ui: &mut egui::Ui| {
+                ui.label("Delete category: ");
+                let maximum_index = self.article.categories.len() as i32 - 1;
+                Slider::new(&mut self.category_index, 0..=maximum_index).ui(ui);
+                if ui.button("Delete").clicked() {
+                    if self.category_index < 0
+                        || self.category_index >= self.article.categories.len() as i32
+                    {
+                        return;
+                    }
+                    self.article.categories.remove(self.category_index as usize);
+                }
+                self.category_index = 0;
+            });
+
+            ui.separator();
+            ui.horizontal(|ui: &mut egui::Ui| {
+                ui.label("Tags: ");
+                for tag in self.article.tags.iter() {
+                    ui.label(tag);
+                }
+            });
+            ui.horizontal(|ui: &mut egui::Ui| {
+                let label = ui.label("New tag: ");
+                ui.text_edit_singleline(&mut self.tag_buffer)
+                    .labelled_by(label.id);
+                if ui.button("Add").clicked() {
+                    if !self.tag_buffer.is_empty() {
+                        for tag in self.article.tags.iter() {
+                            if *tag == self.tag_buffer {
+                                return;
+                            }
+                        }
+                        self.article.tags.push(self.tag_buffer.clone());
+                    }
+                };
+            });
+
+            ui.horizontal(|ui: &mut egui::Ui| {
+                ui.label("Delete tag: ");
+                let maximum_index = self.article.tags.len() as i32 - 1;
+                Slider::new(&mut self.tag_index, 0..=maximum_index).ui(ui);
+                if ui.button("Delete").clicked() {
+                    if self.tag_index < 0 || self.tag_index >= self.article.tags.len() as i32 {
+                        return;
+                    }
+                    self.article.tags.remove(self.tag_index as usize);
+                }
+                self.tag_index = 0;
             });
 
             if ui.button("Save").clicked() {

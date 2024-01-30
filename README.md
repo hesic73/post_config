@@ -1,10 +1,13 @@
 # post_config
-**The project is under development.**
 
-This simple Rust command-line tool is developed for personal use, aimed at assisting in the creation of blog posts for my website. It handles input such as the post's title, date, tags, and categories, and generates a Markdown file named `{date}-{title}.md`. This file includes YAML formatted metadata, making each post recognizable and properly formatted for my blogging platform.
+![](assets/images/screenshot.gif)
+
+This simple GUI tool is aimed at assisting in the creation of blog posts for my website. It generates a Markdown file named `{date}-{title}.md`.
 
 ## TODO
 
+
+- [x] Chinese characters support
 - [ ] tags/categories
 
 ## Usage
@@ -28,5 +31,3 @@ OPTIONS:
 ```
 
 ## Issues
-
-- TextEdit cannot display Chinese characters correctly.
