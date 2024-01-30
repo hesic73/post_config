@@ -1,8 +1,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 #![feature(absolute_path)]
-use eframe::egui;
-
 use chrono::{Local, NaiveDate};
+use eframe::egui;
+use egui::widgets::Widget;
+use egui_extras::DatePickerButton;
 use log::{info, warn};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -77,12 +78,10 @@ fn main() -> Result<(), eframe::Error> {
             // Validate the date format
             NaiveDate::parse_from_str(&d, "%Y-%m-%d")
                 .expect("Provided date is not in the valid format (yyyy-mm-dd)")
-                .format("%Y-%m-%d")
-                .to_string()
         }
         None => {
             // Fetch the current date in yyyy-mm-dd format
-            Local::now().format("%Y-%m-%d").to_string()
+            Local::now().date_naive()
         }
     };
 
@@ -90,7 +89,7 @@ fn main() -> Result<(), eframe::Error> {
 
     let article = Article {
         title: args.title.clone(),
-        date: date.clone(),
+        date: date.format("%Y-%m-%d").to_string(),
         tags: args.tags,
         categories: args.categories,
     };
@@ -139,14 +138,17 @@ fn setup_custom_fonts(ctx: &egui::Context) {
 struct MyApp {
     article: Article,
     output_directory: PathBuf,
+    date: NaiveDate,
 }
 
 impl MyApp {
     fn new(cc: &eframe::CreationContext<'_>, article: Article, output_dir: PathBuf) -> Self {
         setup_custom_fonts(&cc.egui_ctx);
+        let date = NaiveDate::parse_from_str(&article.date, "%Y-%m-%d").unwrap();
         Self {
             article: article,
             output_directory: output_dir,
+            date: date,
         }
     }
 }
@@ -173,9 +175,16 @@ impl eframe::App for MyApp {
                     .labelled_by(title_label.id);
             });
 
+            ui.horizontal(|ui: &mut egui::Ui| {
+                ui.label("Date: ");
+                DatePickerButton::new(&mut self.date).ui(ui);
+            });
+
             if ui.button("Save").clicked() {
+                self.article.date = self.date.format("%Y-%m-%d").to_string();
+                // info!("{}", self.date.format("%Y-%m-%d").to_string());
                 match save_article(&self.article, &self.output_directory) {
-                    Ok(_) => info!("Article saved successfully"),
+                    Ok(_) => (),
                     Err(e) => warn!("Failed to save article: {}", e),
                 }
             }
