@@ -84,13 +84,15 @@ impl eframe::App for MyApp {
             ui.horizontal(|ui: &mut egui::Ui| {
                 ui.label("Delete category: ");
                 let maximum_index = self.article.categories_len() as i32 - 1;
+                if self.category_index < 0 || self.category_index > maximum_index {
+                    self.category_index = 0;
+                }
                 Slider::new(&mut self.category_index, 0..=maximum_index).ui(ui);
                 if ui.button("Delete").clicked() {
                     if let Err(e) = self.article.delete_category(self.category_index as usize) {
                         warn!("{}", e);
                     };
                 }
-                self.category_index = 0;
             });
 
             ui.separator();
@@ -113,13 +115,15 @@ impl eframe::App for MyApp {
             ui.horizontal(|ui: &mut egui::Ui| {
                 ui.label("Delete tag: ");
                 let maximum_index = self.article.tags_len() as i32 - 1;
+                if self.tag_index < 0 || self.tag_index > maximum_index {
+                    self.tag_index = 0;
+                }
                 Slider::new(&mut self.tag_index, 0..=maximum_index).ui(ui);
                 if ui.button("Delete").clicked() {
                     if let Err(e) = self.article.delete_tag(self.tag_index as usize) {
                         warn!("{}", e);
                     };
                 }
-                self.tag_index = 0;
             });
 
             if ui.button("Save").clicked() {
