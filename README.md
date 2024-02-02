@@ -32,4 +32,4 @@ OPTIONS:
 
 ## Issues
 
-- Now there are some bugs in tag/category deletion.
+- ~~Now there are some bugs in tag/category deletion.~~
