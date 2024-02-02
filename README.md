@@ -8,7 +8,7 @@ This simple GUI tool is aimed at assisting in the creation of blog posts for my 
 
 
 - [x] Chinese characters support
-- [ ] tags/categories
+- [x] tags/categories
 
 ## Usage
 
@@ -31,3 +31,5 @@ OPTIONS:
 ```
 
 ## Issues
+
+- Now there are some bugs in tag/category deletion.
